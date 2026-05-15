@@ -49,6 +49,10 @@ export interface ToolDisplayConfig {
 	diffSplitMinWidth: number;
 	diffCollapsedLines: number;
 	diffWordWrap: boolean;
+	diffAddedBg?: string;
+	diffRemovedBg?: string;
+	diffAddedEmphasisBg?: string;
+	diffRemovedEmphasisBg?: string;
 	showTruncationHints: boolean;
 	showRtkCompactionHints: boolean;
 }
@@ -76,6 +80,10 @@ export const DEFAULT_TOOL_DISPLAY_CONFIG: ToolDisplayConfig = {
 	diffSplitMinWidth: 120,
 	diffCollapsedLines: 24,
 	diffWordWrap: true,
+	diffAddedBg: undefined,
+	diffRemovedBg: undefined,
+	diffAddedEmphasisBg: undefined,
+	diffRemovedEmphasisBg: undefined,
 	showTruncationHints: false,
 	showRtkCompactionHints: false,
 };

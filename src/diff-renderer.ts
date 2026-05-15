@@ -1015,6 +1015,17 @@ function rgbToBgAnsi(color: RgbColor): string {
 	return `\x1b[48;2;${r};${g};${b}m`;
 }
 
+function hexToBgAnsi(color: string | undefined): string | undefined {
+	if (!color || !/^#[0-9a-fA-F]{6}$/.test(color)) {
+		return undefined;
+	}
+
+	const r = Number.parseInt(color.slice(1, 3), 16);
+	const g = Number.parseInt(color.slice(3, 5), 16);
+	const b = Number.parseInt(color.slice(5, 7), 16);
+	return rgbToBgAnsi({ r, g, b });
+}
+
 function mixRgb(base: RgbColor, tint: RgbColor, ratio: number): RgbColor {
 	const clamped = Math.max(0, Math.min(1, ratio));
 	return {
@@ -1078,7 +1089,7 @@ function resolveContainerBackgroundAnsi(theme: DiffTheme): string | undefined {
 		?? readThemeAnsi(theme, "bg", "userMessageBg");
 }
 
-function resolveDiffPalette(theme: DiffTheme): DiffPalette {
+function resolveDiffPalette(theme: DiffTheme, config?: ToolDisplayConfig): DiffPalette {
 	const baseBg = parseAnsiColorCode(readThemeAnsi(theme, "bg", "toolSuccessBg"))
 		?? parseAnsiColorCode(readThemeAnsi(theme, "bg", "toolPendingBg"))
 		?? parseAnsiColorCode(readThemeAnsi(theme, "bg", "userMessageBg"))
@@ -1093,11 +1104,14 @@ function resolveDiffPalette(theme: DiffTheme): DiffPalette {
 	const addEmphasisBg = mixRgb(baseBg, addTint, ADD_INLINE_EMPHASIS_MIX_RATIO);
 	const removeEmphasisBg = mixRgb(baseBg, removeTint, REMOVE_INLINE_EMPHASIS_MIX_RATIO);
 
+	const explicitAddRowBg = hexToBgAnsi(config?.diffAddedBg);
+	const explicitRemoveRowBg = hexToBgAnsi(config?.diffRemovedBg);
+
 	return {
-		addRowBgAnsi: rgbToBgAnsi(addRowBg),
-		removeRowBgAnsi: rgbToBgAnsi(removeRowBg),
-		addEmphasisBgAnsi: rgbToBgAnsi(addEmphasisBg),
-		removeEmphasisBgAnsi: rgbToBgAnsi(removeEmphasisBg),
+		addRowBgAnsi: explicitAddRowBg ?? rgbToBgAnsi(addRowBg),
+		removeRowBgAnsi: explicitRemoveRowBg ?? rgbToBgAnsi(removeRowBg),
+		addEmphasisBgAnsi: hexToBgAnsi(config?.diffAddedEmphasisBg) ?? explicitAddRowBg ?? rgbToBgAnsi(addEmphasisBg),
+		removeEmphasisBgAnsi: hexToBgAnsi(config?.diffRemovedEmphasisBg) ?? explicitRemoveRowBg ?? rgbToBgAnsi(removeEmphasisBg),
 	};
 }
 
@@ -2026,7 +2040,7 @@ export function renderEditDiffResult(
 	const splitRows = buildSplitRows(parsed.entries);
 	const inlineHighlights = buildInlineHighlightMap(splitRows);
 	const lineNumberWidth = getLineNumberWidth(parsed.entries);
-	const palette = resolveDiffPalette(theme);
+	const palette = resolveDiffPalette(theme, config);
 	const containerBgAnsi = resolveContainerBackgroundAnsi(theme);
 	const language = resolveLanguageFromPath(options.filePath);
 	const highlightLine = createCodeLineHighlighter(language);
@@ -2408,7 +2422,7 @@ export function renderWriteDiffResult(
 	const overwriteGuard = hasComparablePrevious
 		? resolveWriteOverwriteGuard(previousLines, lines)
 		: undefined;
-	const palette = resolveDiffPalette(theme);
+	const palette = resolveDiffPalette(theme, config);
 	const containerBgAnsi = resolveContainerBackgroundAnsi(theme);
 	const language = resolveLanguageFromPath(filePath);
 	const highlightLine = createCodeLineHighlighter(language);

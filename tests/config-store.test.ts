@@ -33,6 +33,10 @@ test("config normalization clamps invalid values and migrates legacy read overri
     diffSplitMinWidth: 1,
     diffCollapsedLines: 999,
     diffWordWrap: false,
+    diffAddedBg: "#203A34",
+    diffRemovedBg: "#3A2020",
+    diffAddedEmphasisBg: "not-a-color",
+    diffRemovedEmphasisBg: "#3a2020",
   });
 
   assert.equal(config.registerToolOverrides.read, false);
@@ -48,6 +52,10 @@ test("config normalization clamps invalid values and migrates legacy read overri
   assert.equal(config.diffSplitMinWidth, 70);
   assert.equal(config.diffCollapsedLines, 240);
   assert.equal(config.diffWordWrap, false);
+  assert.equal(config.diffAddedBg, "#203A34");
+  assert.equal(config.diffRemovedBg, "#3A2020");
+  assert.equal(config.diffAddedEmphasisBg, undefined);
+  assert.equal(config.diffRemovedEmphasisBg, "#3a2020");
 });
 
 test("config load reports parse errors and falls back to defaults", () => {

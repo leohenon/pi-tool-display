@@ -22,6 +22,8 @@
   "diffSplitMinWidth": 120,
   "diffCollapsedLines": 24,
   "diffWordWrap": true,
+  "diffAddedBg": "#203A34",
+  "diffRemovedBg": "#3A2020",
   "showTruncationHints": false,
   "showRtkCompactionHints": false
 }
